@@ -76,8 +76,15 @@ export default async function handler(req, res) {
 
   const payload = buildGeminiPayload(messages);
 
+  const fetchFn = typeof fetch === "function" ? fetch : undefined;
+
+  if (!fetchFn) {
+    console.error("Fetch no está disponible en el runtime de la función.");
+    return res.status(500).json({ error: "Fetch no está disponible en el runtime." });
+  }
+
   try {
-    const response = await fetch(
+    const response = await fetchFn(
       `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateMessage?key=${API_KEY}`,
       {
         method: "POST",
@@ -119,6 +126,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ reply });
   } catch (error) {
     console.error("Error en proxy Gemini:", error?.message || error, error?.stack || "");
-    return res.status(500).json({ error: "Error interno en el proxy de Gemini AI." });
+    const detail = process.env.NODE_ENV !== "production" ? error?.message || String(error) : "Error interno en el proxy de Gemini AI.";
+    return res.status(500).json({ error: detail });
   }
 }
