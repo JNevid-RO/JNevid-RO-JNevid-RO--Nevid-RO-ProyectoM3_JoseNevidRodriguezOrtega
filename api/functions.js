@@ -109,8 +109,8 @@ export default async function handler(req, res) {
         console.error("Error parseando respuesta Gemini:", parseError, "texto:", text);
         return res.status(502).json({ error: "Respuesta inválida de Gemini AI." });
       }
-    } else if (typeof response.json === "function") {
-      data = await response.json();
+    } else {
+      data = {};
     }
 
     if (!response.ok) {
