@@ -53,7 +53,7 @@ export default async function handler(req, res) {
   }
 
   const API_KEY = process.env.GEMINI_API_KEY;
-  const MODEL = process.env.GEMINI_MODEL || "gemini-3.1-pro-preview";
+  const MODEL = process.env.GEMINI_MODEL || "gemini-3.1-flash";
 
   if (!API_KEY) {
     console.error("Falta GEMINI_API_KEY en el entorno");
