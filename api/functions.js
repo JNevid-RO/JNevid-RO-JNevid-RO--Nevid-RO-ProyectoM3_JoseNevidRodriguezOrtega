@@ -85,7 +85,7 @@ export default async function handler(req, res) {
 
   try {
     const response = await fetchFn(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateMessage?key=${API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta2/models/gemini-1.5-pro:generateMessage?key=${API_KEY}`,
       {
         method: "POST",
         headers: {
