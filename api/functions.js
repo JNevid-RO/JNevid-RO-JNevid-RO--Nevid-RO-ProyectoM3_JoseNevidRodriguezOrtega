@@ -53,6 +53,7 @@ export default async function handler(req, res) {
   }
 
   const API_KEY = process.env.GEMINI_API_KEY;
+  const MODEL = process.env.GEMINI_MODEL || "gemini-3.1-pro-preview";
 
   if (!API_KEY) {
     console.error("Falta GEMINI_API_KEY en el entorno");
@@ -64,7 +65,8 @@ export default async function handler(req, res) {
     method: req.method,
     contentType: req.headers?.["content-type"] || req.headers?.["Content-Type"],
     bodyType: typeof body,
-    messagesCount: Array.isArray(messages) ? messages.length : 0
+    messagesCount: Array.isArray(messages) ? messages.length : 0,
+    model: MODEL
   });
 
   if (!Array.isArray(messages) || !messages.length) {
@@ -81,8 +83,9 @@ export default async function handler(req, res) {
   }
 
   try {
+    const modelUrl = `https://generativelanguage.googleapis.com/v1beta2/models/${MODEL}:generateText?key=${API_KEY}`;
     const response = await fetchFn(
-      `https://generativelanguage.googleapis.com/v1beta2/models/gemini-1.5-pro:generateText?key=${API_KEY}`,
+      modelUrl,
       {
         method: "POST",
         headers: {
@@ -114,9 +117,14 @@ export default async function handler(req, res) {
       console.error("Gemini API respondió con error", {
         status: response.status,
         statusText: response.statusText,
-        body: data
+        body: data,
+        model: MODEL
       });
-      return res.status(502).json({ error: data.error?.message || "Error en Gemini AI." });
+      const errorMessage = data.error?.message || "Error en Gemini AI.";
+      const modelHint = (response.status === 404 || response.status === 405)
+        ? ` Modelo no encontrado: ${MODEL}. Asegúrate de usar GEMINI_MODEL con un modelo válido.`
+        : "";
+      return res.status(502).json({ error: `${errorMessage}${modelHint}` });
     }
 
     const reply = extractReply(data);
