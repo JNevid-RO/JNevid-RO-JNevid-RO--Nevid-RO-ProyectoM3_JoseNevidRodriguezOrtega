@@ -2,22 +2,23 @@
 
 export function buildGeminiPayload(messages) {
   const formatted = messages.map(message => ({
-    role: message.sender === "user" ? "HUMAN" : "ASSISTANT",
+    author: message.sender === "user" ? "user" : "assistant",
     content: [{ type: "text", text: message.text }]
   }));
 
   return {
-    model: "gemini-1.5-pro",
+    prompt: {
+      messages: [
+        {
+          author: "system",
+          content: [{ type: "text", text: SYSTEM_PROMPT }]
+        },
+        ...formatted
+      ]
+    },
     temperature: 0.2,
     candidateCount: 1,
-    maxOutputTokens: 256,
-    messages: [
-      {
-        role: "SYSTEM",
-        content: [{ type: "text", text: SYSTEM_PROMPT }]
-      },
-      ...formatted
-    ]
+    maxOutputTokens: 256
   };
 }
 

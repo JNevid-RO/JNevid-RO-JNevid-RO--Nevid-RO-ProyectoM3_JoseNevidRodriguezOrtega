@@ -8,10 +8,11 @@ describe("utils helpers", () => {
       { text: "Hola humano", sender: "assistant" }
     ]);
 
-    expect(payload.messages[0].role).toBe("SYSTEM");
-    expect(payload.messages[1].role).toBe("HUMAN");
-    expect(payload.messages[2].role).toBe("ASSISTANT");
-    expect(payload.model).toBe("gemini-1.5-pro");
+    expect(payload.prompt.messages[0].author).toBe("system");
+    expect(payload.prompt.messages[1].author).toBe("user");
+    expect(payload.prompt.messages[2].author).toBe("assistant");
+    expect(payload.prompt.messages[1].content[0].text).toBe("Hola");
+    expect(payload.temperature).toBe(0.2);
   });
 
   it("escapa HTML en los mensajes", () => {
