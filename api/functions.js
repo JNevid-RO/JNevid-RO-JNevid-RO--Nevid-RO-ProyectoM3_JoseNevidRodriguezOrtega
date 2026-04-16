@@ -35,13 +35,33 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Método no permitido" });
   }
 
+  let body = req.body;
+
+  if (!body && typeof req.json === "function") {
+    try {
+      body = await req.json();
+    } catch (parseError) {
+      console.error("JSON inválido en la petición:", parseError);
+      return res.status(400).json({ error: "Body JSON inválido." });
+    }
+  }
+
+  if (typeof body === "string") {
+    try {
+      body = JSON.parse(body);
+    } catch (parseError) {
+      console.error("JSON inválido en la petición:", parseError);
+      return res.status(400).json({ error: "Body JSON inválido." });
+    }
+  }
+
   const API_KEY = process.env.GEMINI_API_KEY;
 
   if (!API_KEY) {
     return res.status(500).json({ error: "Falta la clave GEMINI_API_KEY en el entorno." });
   }
 
-  const { messages } = req.body || {};
+  const { messages } = body || {};
 
   if (!Array.isArray(messages) || !messages.length) {
     return res.status(400).json({ error: "El cuerpo debe incluir un arreglo de mensajes." });
