@@ -69,40 +69,44 @@ export default async function handler(req, res) {
 
   const payload = buildGeminiPayload(messages);
 
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateMessage?key=${API_KEY}`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateMessage?key=${API_KEY}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      }
+    );
+
+    let data = {};
+    let text = "";
+
+    if (typeof response.text === "function") {
+      text = await response.text();
     }
-  );
 
-  let data = {};
-  let text = "";
-
-  if (typeof response.text === "function") {
-    text = await response.text();
-  }
-
-  if (text) {
-    try {
-      data = JSON.parse(text);
-    } catch (parseError) {
-      console.error("Error parseando respuesta Gemini:", parseError, "texto:", text);
-      return res.status(502).json({ error: "Respuesta inválida de Gemini AI." });
+    if (text) {
+      try {
+        data = JSON.parse(text);
+      } catch (parseError) {
+        console.error("Error parseando respuesta Gemini:", parseError, "texto:", text);
+        return res.status(502).json({ error: "Respuesta inválida de Gemini AI." });
+      }
+    } else if (typeof response.json === "function") {
+      data = await response.json();
     }
-  } else if (typeof response.json === "function") {
-    data = await response.json();
+
+    if (!response.ok) {
+      return res.status(502).json({ error: data.error?.message || "Error en Gemini AI." });
+    }
+
+    const reply = extractReply(data);
+    return res.status(200).json({ reply });
+  } catch (error) {
+    console.error("Error en proxy Gemini:", error);
+    return res.status(500).json({ error: "Error interno en el proxy de Gemini AI." });
   }
-
-  if (!response.ok) {
-    return res.status(502).json({ error: data.error?.message || "Error en Gemini AI." });
-  }
-
-  const reply = extractReply(data);
-
-  return res.status(200).json({ reply });
 }
