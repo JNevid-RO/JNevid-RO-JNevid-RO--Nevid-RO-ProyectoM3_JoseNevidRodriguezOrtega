@@ -58,10 +58,17 @@ export default async function handler(req, res) {
   const API_KEY = process.env.GEMINI_API_KEY;
 
   if (!API_KEY) {
+    console.error("Falta GEMINI_API_KEY en el entorno");
     return res.status(500).json({ error: "Falta la clave GEMINI_API_KEY en el entorno." });
   }
 
   const { messages } = body || {};
+  console.error("api/functions request", {
+    method: req.method,
+    contentType: req.headers?.["content-type"] || req.headers?.["Content-Type"],
+    bodyType: typeof body,
+    messagesCount: Array.isArray(messages) ? messages.length : 0
+  });
 
   if (!Array.isArray(messages) || !messages.length) {
     return res.status(400).json({ error: "El cuerpo debe incluir un arreglo de mensajes." });
@@ -100,13 +107,18 @@ export default async function handler(req, res) {
     }
 
     if (!response.ok) {
+      console.error("Gemini API respondió con error", {
+        status: response.status,
+        statusText: response.statusText,
+        body: data
+      });
       return res.status(502).json({ error: data.error?.message || "Error en Gemini AI." });
     }
 
     const reply = extractReply(data);
     return res.status(200).json({ reply });
   } catch (error) {
-    console.error("Error en proxy Gemini:", error);
+    console.error("Error en proxy Gemini:", error?.message || error, error?.stack || "");
     return res.status(500).json({ error: "Error interno en el proxy de Gemini AI." });
   }
 }
