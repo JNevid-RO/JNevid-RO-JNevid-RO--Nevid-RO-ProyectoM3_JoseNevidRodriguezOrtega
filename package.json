@@ -1,0 +1,16 @@
+{
+  "name": "proyecto-spa-chat",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "preview": "npx serve ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "SPA chat roleplaying as Isaac Newton with Gemini AI, serverless proxy, responsive UI, and session history.",
+  "devDependencies": {
+    "vitest": "^4.1.4"
+  }
+}
