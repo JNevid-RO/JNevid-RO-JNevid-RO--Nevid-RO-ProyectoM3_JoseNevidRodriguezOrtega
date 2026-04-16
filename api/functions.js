@@ -9,10 +9,11 @@ function buildGeminiPayload(messages) {
     .join("\n");
 
   return {
-    prompt: `${SYSTEM_PROMPT}\n\n${conversation}\n\nIsaac Newton:`,
+    prompt: {
+      text: `${SYSTEM_PROMPT}\n\n${conversation}\n\nIsaac Newton:`
+    },
     temperature: 0.2,
-    candidateCount: 1,
-    maxOutputTokens: 256
+    candidateCount: 1
   };
 }
 
