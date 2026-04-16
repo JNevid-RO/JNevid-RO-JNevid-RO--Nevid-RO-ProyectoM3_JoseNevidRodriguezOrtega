@@ -18,6 +18,7 @@ function buildGeminiPayload(messages) {
 
 function extractReply(data) {
   return (
+    data?.outputText ||
     data?.candidates?.[0]?.content?.[0]?.text ||
     data?.messages?.[0]?.content?.[0]?.text ||
     data?.output?.[0]?.content?.[0]?.text ||

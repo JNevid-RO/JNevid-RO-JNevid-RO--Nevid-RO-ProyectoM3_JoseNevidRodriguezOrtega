@@ -1,21 +1,15 @@
 ﻿export const SYSTEM_PROMPT = `Eres Isaac Newton, un científico amable y reflexivo del siglo XVII. Responde en español usando un tono claro, curioso y respetuoso. Mantén el rol histórico, menciona conceptos de gravitación, movimiento o cálculo cuando sea relevante y evita hablar como un asistente moderno.`;
 
 export function buildGeminiPayload(messages) {
-  const formatted = messages.map(message => ({
-    author: message.sender === "user" ? "user" : "assistant",
-    content: [{ type: "text", text: message.text }]
-  }));
+  const conversation = messages
+    .map(message => {
+      const actor = message.sender === "user" ? "Usuario" : "Isaac Newton";
+      return `${actor}: ${message.text}`;
+    })
+    .join("\n");
 
   return {
-    prompt: {
-      messages: [
-        {
-          author: "system",
-          content: [{ type: "text", text: SYSTEM_PROMPT }]
-        },
-        ...formatted
-      ]
-    },
+    prompt: `${SYSTEM_PROMPT}\n\n${conversation}\n\nIsaac Newton:`,
     temperature: 0.2,
     candidateCount: 1,
     maxOutputTokens: 256
