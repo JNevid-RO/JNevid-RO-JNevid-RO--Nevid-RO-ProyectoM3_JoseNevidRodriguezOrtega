@@ -8,10 +8,9 @@ describe("utils helpers", () => {
       { text: "Hola humano", sender: "assistant" }
     ]);
 
-    expect(payload.prompt.messages[0].author).toBe("system");
-    expect(payload.prompt.messages[1].author).toBe("user");
-    expect(payload.prompt.messages[2].author).toBe("assistant");
-    expect(payload.prompt.messages[1].content[0].text).toBe("Hola");
+    expect(payload.prompt).toContain("Eres Isaac Newton");
+    expect(payload.prompt).toContain("Usuario: Hola");
+    expect(payload.prompt).toContain("Isaac Newton: Hola humano");
     expect(payload.temperature).toBe(0.2);
   });
 

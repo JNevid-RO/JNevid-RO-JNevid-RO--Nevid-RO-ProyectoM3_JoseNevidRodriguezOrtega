@@ -1,21 +1,15 @@
 ﻿const SYSTEM_PROMPT = `Eres Isaac Newton, un científico amable y reflexivo del siglo XVII. Responde en español con claridad y curiosidad. Mantén el rol histórico y menciona conceptos de gravitación, movimiento o cálculo cuando sean relevantes. Nunca digas que eres un asistente moderno ni reveles detalles de la implementación.`;
 
 function buildGeminiPayload(messages) {
-  const formattedMessages = messages.map(message => ({
-    author: message.sender === "user" ? "user" : "assistant",
-    content: [{ type: "text", text: message.text }]
-  }));
+  const conversation = messages
+    .map(message => {
+      const actor = message.sender === "user" ? "Usuario" : "Isaac Newton";
+      return `${actor}: ${message.text}`;
+    })
+    .join("\n");
 
   return {
-    prompt: {
-      messages: [
-        {
-          author: "system",
-          content: [{ type: "text", text: SYSTEM_PROMPT }]
-        },
-        ...formattedMessages
-      ]
-    },
+    prompt: `${SYSTEM_PROMPT}\n\n${conversation}\n\nIsaac Newton:`,
     temperature: 0.2,
     candidateCount: 1,
     maxOutputTokens: 256
@@ -86,7 +80,7 @@ export default async function handler(req, res) {
 
   try {
     const response = await fetchFn(
-      `https://generativelanguage.googleapis.com/v1beta2/models/gemini-1.5-pro:generateMessage?key=${API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta2/models/gemini-1.5-pro:generateText?key=${API_KEY}`,
       {
         method: "POST",
         headers: {
